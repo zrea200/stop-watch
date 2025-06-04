@@ -4,106 +4,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>传统秒表</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="1.css">
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3B82F6',
-                        secondary: '#10B981',
-                        accent: '#F59E0B',
-                        danger: '#EF4444',
-                        dark: '#1E293B',
-                    },
-                    fontFamily: {
-                        digital: ['Digital-7', 'monospace'],
-                        inter: ['Inter', 'sans-serif'],
-                    },
-                },
-            }
+    <title>原生秒表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
-      .timer-shadow {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-      }
-      .btn-hover {
-        @apply transition-all duration-300 hover:scale-105 active:scale-95;
-      }
-      .marker-appear {
-        animation: markerAppear 0.5s ease-out;
-      }
-      @keyframes markerAppear {
-        0% { opacity: 0; transform: translateY(-10px); }
-        100% { opacity: 1; transform: translateY(0); }
-      }
-    }
-  </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+        .stopwatch {
+            text-align: center;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        #time {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #startBtn:hover {
+            background-color: #45a049;
+        }
+
+        #markBtn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        #markBtn:hover {
+            background-color: #0b7dda;
+        }
+
+        #resetBtn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #resetBtn:hover {
+            background-color: #da190b;
+        }
+
+        #marksList {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        #marksList li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        #marksList li:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 
-<body
-    class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen flex items-center justify-center p-4 font-inter text-white">
-    <div
-        class="max-w-md w-full bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-gray-700">
-        <!-- 秒表头部 -->
-        <div class="p-6">
-            <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-center mb-8 text-primary tracking-wide">传统秒表</h1>
-
-            <!-- 时间显示 -->
-            <div class="bg-gray-900/60 rounded-xl p-6 mb-8 timer-shadow">
-                <div id="timer"
-                    class="text-[clamp(2rem,8vw,4rem)] font-digital text-center font-mono tracking-widest text-white">
-                    00:00:00:000
-                </div>
-            </div>
-
-            <!-- 控制按钮 -->
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <button id="startBtn"
-                    class="bg-secondary hover:bg-secondary/80 text-white font-bold py-4 px-6 rounded-full flex items-center justify-center btn-hover">
-                    <i class="fa fa-play mr-2"></i> 开始
-                </button>
-                <button id="pauseBtn"
-                    class="bg-accent hover:bg-accent/80 text-white font-bold py-4 px-6 rounded-full flex items-center justify-center btn-hover hidden">
-                    <i class="fa fa-pause mr-2"></i> 暂停
-                </button>
-                <button id="markBtn"
-                    class="bg-primary hover:bg-primary/80 text-white font-bold py-4 px-6 rounded-full flex items-center justify-center btn-hover opacity-50 cursor-not-allowed">
-                    <i class="fa fa-flag mr-2"></i> 打标记
-                </button>
-                <button id="resetBtn"
-                    class="bg-danger hover:bg-danger/80 text-white font-bold py-4 px-6 rounded-full flex items-center justify-center btn-hover opacity-50 cursor-not-allowed">
-                    <i class="fa fa-refresh mr-2"></i> 重置
-                </button>
-            </div>
-
-            <!-- 标记列表 -->
-            <div class="bg-gray-900/40 rounded-xl p-4 max-h-64 overflow-y-auto">
-                <h2 class="text-lg font-semibold mb-3 text-gray-300 flex items-center">
-                    <i class="fa fa-list-ol mr-2 text-primary"></i> 标记记录
-                </h2>
-                <ul id="markList" class="divide-y divide-gray-700">
-                    <li class="py-3 text-gray-400 text-center italic">暂无标记记录</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- 页脚 -->
-        <div class="bg-gray-900/60 py-3 px-6 text-center text-gray-500 text-sm">
-            <p>© 2025 传统秒表 | 使用原生技术开发</p>
-        </div>
+<body>
+    <div class="stopwatch">
+        <div id="time">00:00:00.000</div>
+        <button id="startBtn">开始</button>
+        <button id="markBtn" disabled>标记</button>
+        <button id="resetBtn">重置</button>
+        <h3>标记列表</h3>
+        <ul id="marksList"></ul>
     </div>
 
-    <script src="1.js"></script>
+    <script>
+        let timer = null;
+        let startTime = 0;
+        let elapsedTime = 0;
+        const marks = [];
+        let isRunning = false;
+
+        // 获取 DOM 元素
+        const timeDisplay = document.getElementById('time');
+        const startBtn = document.getElementById('startBtn');
+        const markBtn = document.getElementById('markBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const marksList = document.getElementById('marksList');
+
+        // 更新时间显示
+        function updateTime() {
+            const totalMilliseconds = elapsedTime + (isRunning ? Date.now() - startTime : 0);
+            // 计算小时、分钟、秒和毫秒
+            // 1小时 = 3600000毫秒，1分钟 = 60000毫秒，1秒 = 1000毫秒
+            // hours: 将总毫秒数除以一小时的毫秒数（3600000），取整得到小时数
+            const hours = Math.floor(totalMilliseconds / 3600000);
+            // minutes: 总毫秒数对一小时的毫秒数取余后，再除以一分钟的毫秒数（60000），取整得到分钟数
+            const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
+            // seconds: 对一分钟的毫秒数取余后，再除以一秒的毫秒数（1000），取整得到秒数
+            const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
+            // milliseconds: 最后的毫秒数通过对1000取余得到毫秒数
+            const milliseconds = totalMilliseconds % 1000;
+
+            // 补零+模板字符串拼接
+            const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padMilliseconds(milliseconds)}`;
+            // 更新时间显示
+            timeDisplay.textContent = formattedTime;
+        }
+
+        // 补零函数
+        function padZero(num) {
+            // padStart() 方法用于在字符串开头添加指定长度的字符，直到字符串达到指定的总长度为止
+            return num.toString().padStart(2, '0');
+        }
+
+        // 补全毫秒到三位数
+        function padMilliseconds(ms) {
+            return ms.toString().padStart(3, '0');
+        }
+
+        // 开始/暂停按钮事件
+        startBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                // 开始计时
+                startTime = Date.now() - elapsedTime;
+                timer = setInterval(updateTime, 10); // 每10ms更新一次
+                startBtn.textContent = '暂停';
+                startBtn.style.backgroundColor = '#f44336'; // 红色
+                markBtn.disabled = false;
+            } else {
+                // 暂停计时
+                clearInterval(timer);
+                elapsedTime = Date.now() - startTime;
+                startBtn.textContent = '继续';
+                startBtn.style.backgroundColor = '#4CAF50'; // 绿色
+            }
+            isRunning = !isRunning;
+        });
+
+        // 标记按钮事件
+        markBtn.addEventListener('click', () => {
+            const currentTime = timeDisplay.textContent;
+            marks.push(currentTime);
+            renderMarks();
+        });
+
+        // 重置按钮事件
+        resetBtn.addEventListener('click', () => {
+            // 停止计时
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+            }
+
+            // 重置状态
+            elapsedTime = 0;
+            startTime = 0;
+            marks.length = 0;
+
+            // 更新UI
+            updateTime();
+            startBtn.textContent = '开始';
+            startBtn.style.backgroundColor = '#4CAF50';
+            markBtn.disabled = true;
+            renderMarks();
+        });
+
+        // 渲染标记列表
+        function renderMarks() {
+            marksList.innerHTML = '';
+            marks.forEach((mark, index) => {
+                const li = document.createElement('li');
+                li.textContent = `标记 ${index + 1}: ${mark}`;
+                marksList.appendChild(li);
+            });
+        }
+
+        // 初始化显示
+        updateTime();
+    </script>
 </body>
 
 </html>

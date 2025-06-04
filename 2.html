@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原生计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .calculator {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+        }
+
+        #display {
+            grid-column: 1 / -1;
+            padding: 15px;
+            font-size: 2rem;
+            text-align: right;
+            margin-bottom: 15px;
+            border: none;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            width: 17rem;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #d0d0d0;
+        }
+
+        .operator {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .operator:hover {
+            background-color: #e67e22;
+        }
+
+        .clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .clear:hover {
+            background-color: #c0392b;
+        }
+
+        .equals {
+            background-color: #2ecc71;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .equals:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <input type="text" id="display" readonly value="0">
+        <div class="buttons">
+            <button class="clear">C</button>
+            <button class="operator">÷</button>
+            <button class="operator">×</button>
+            <button class="operator">-</button>
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="operator">+</button>
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button>.</button>
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button class="equals">=</button>
+            <button>0</button>
+        </div>
+    </div>
+
+    <script>
+        // 当前输入的数字字符串
+        let currentInput = '0';
+        // 上一个输入的操作数
+        let prevValue = null;
+        // 当前操作符
+        let operator = null;
+        // 是否重置下一个输入
+        let resetOnNextInput = false;
+
+        // 获取 DOM 元素
+        const display = document.getElementById('display');
+        const buttons = document.querySelector('.buttons');
+
+        // 事件委托处理所有按钮点击
+        buttons.addEventListener('click', (e) => {
+            if (!e.target.matches('button')) return;
+
+            const buttonValue = e.target.textContent;
+
+            // 数字输入
+            if (/[0-9]/.test(buttonValue)) {
+                handleNumberInput(buttonValue);
+            }
+            // 小数点
+            else if (buttonValue === '.') {
+                handleDecimal();
+            }
+            // 运算符
+            else if (['+', '-', '×', '÷'].includes(buttonValue)) {
+                handleOperator(buttonValue);
+            }
+            // 等号
+            else if (buttonValue === '=') {
+                handleEquals();
+            }
+            // 清除
+            else if (buttonValue === 'C') {
+                resetCalculator();
+            }
+
+            // 更新显示屏
+            updateDisplay();
+        });
+
+        // 处理数字输入
+        function handleNumberInput(num) {
+            if (resetOnNextInput) {
+                currentInput = num;
+                resetOnNextInput = false;
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+        }
+
+        // 处理小数点，如果有则忽略
+        function handleDecimal() {
+            if (resetOnNextInput) {
+                currentInput = '0.';
+                resetOnNextInput = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+        }
+
+        // 处理运算符，如果已经有前一个值和运算符，先进行计算，再更新状态
+        function handleOperator(op) {
+            if (prevValue !== null && operator !== null) {
+                // 执行之前的运算
+                currentInput = calculate(prevValue, currentInput, operator).toString();
+            }
+
+            prevValue = currentInput;
+            operator = op;
+            resetOnNextInput = true;
+        }
+
+        // 处理等号
+        function handleEquals() {
+            if (prevValue === null || operator === null) return;
+
+            currentInput = calculate(prevValue, currentInput, operator).toString();
+            prevValue = null;
+            operator = null;
+            resetOnNextInput = true;
+        }
+
+        // 重置计算器
+        function resetCalculator() {
+            currentInput = '0';
+            prevValue = null;
+            operator = null;
+            resetOnNextInput = false;
+        }
+
+        // 更新显示屏
+        function updateDisplay() {
+            const value = parseFloat(currentInput);
+
+            if (isNaN(value)) {
+                display.value = '错误';
+            } else if (!isFinite(value)) {
+                display.value = '数值过大';
+            } else if (Math.abs(value) >= 1e10) {
+                display.value = value.toExponential(4);
+            } else {
+                // currentInput.length > 10 但数值不大	显示固定小数位 .toFixed(4)
+                display.value = currentInput.length > 10 ? value.toFixed(4) : currentInput;
+            }
+        }
+
+        // 计算结果
+        function calculate(a, b, op) {
+            a = parseFloat(a);
+            b = parseFloat(b);
+
+            // 错误处理
+            if (op === '÷' && b === 0) {
+                resetCalculator();
+                return 'Error';
+            }
+
+            switch (op) {
+                case '+': return a + b;
+                case '-': return a - b;
+                case '×': return a * b;
+                case '÷': return a / b;
+                default: return b;
+            }
+        }
+    </script>
+</body>
+
+</html>
